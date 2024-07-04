@@ -1,3 +1,16 @@
 <resources>
     <string name="app_name">Brigadeirao</string>
+
+    <string name="order_brigadeiros">Order brigadeiros</string>
+
+    <!-- fillings -->
+    <string name="leite_condensado">Leite condensado</string>
+    <string name="baileys">Baileys</string>
+    <string name="whisky">Whisky</string>
+    <string name="doce_de_leite">Doce de leite</string>
+
+    <!-- quantity -->
+    <string name="one_brigadeiro">1 brigadeiro</string>
+    <string name="four_brigadeiro">4 brigadeiros</string>
+    <string name="ten_brigadeiro">10 brigadeiros</string>
 </resources>
