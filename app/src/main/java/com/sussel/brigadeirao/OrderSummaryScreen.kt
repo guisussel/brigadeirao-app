@@ -112,10 +112,10 @@ fun OrderSummaryScreen(
 fun PreviewOrderSummaryScreen() {
     BrigadeiraoTheme {
         OrderSummaryScreen(
+            modifier = Modifier.fillMaxHeight(),
             orderUiState = OrderUiState(1, "test filling", "test date", "test price 3.0"),
             onSendButtonClicked = { subject: String, summary: String -> },
-            onCancelButtonClicked = { /*TODO*/ },
-            modifier = Modifier.fillMaxHeight()
+            onCancelButtonClicked = { }
         )
     }
 }

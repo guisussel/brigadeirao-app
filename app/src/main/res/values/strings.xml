@@ -27,5 +27,6 @@
     <string name="pickup_date">Pickup date</string>
     <string name="subtotal_price">Subtotal € %s</string>
     <string name="send_order">Send order</string>
+    <string name="next">Next</string>
     <string name="cancel">Cancel</string>
 </resources>

@@ -24,11 +24,16 @@ import androidx.compose.ui.unit.dp
 import com.sussel.brigadeirao.data.DataSource
 import com.sussel.brigadeirao.ui.theme.BrigadeiraoTheme
 
+/**
+ * Composable that allows the user to select the desired cupcake quantity and expects
+ * [onNextButtonClicked] lambda that expects the selected quantity and triggers the navigation to
+ * next screen
+ */
 @Composable
 fun StartOrderScreen(
+    modifier: Modifier = Modifier,
     quantityOptions: List<Pair<Int, Int>>,
-    onNextButtonClicked: (Int) -> Unit,
-    modifier: Modifier = Modifier
+    onNextButtonClicked: (Int) -> Unit
 ) {
     Column(
         modifier = modifier,
@@ -69,9 +74,9 @@ fun StartOrderScreen(
 
 @Composable
 fun SelectQuantityButton(
+    modifier: Modifier = Modifier,
     @StringRes labelResourceId: Int,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    onClick: () -> Unit
 ) {
     Button(
         onClick = onClick,
@@ -83,7 +88,7 @@ fun SelectQuantityButton(
 
 @Preview(showBackground = true)
 @Composable
-fun StartOrderPreview() {
+fun PreviewStartOrder() {
     BrigadeiraoTheme {
         StartOrderScreen(
             modifier = Modifier
