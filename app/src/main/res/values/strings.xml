@@ -1,7 +1,10 @@
 <resources>
     <string name="app_name">Brigadeirao</string>
-
+    <string name="choose_filling">Choose Filling</string>
+    <string name="choose_pickup_date">Choose Pickup Date</string>
+    <string name="order_summary">Order Summary</string>
     <string name="order_brigadeiros">Order brigadeiros</string>
+    <string name="back">Back</string>
 
     <!-- fillings -->
     <string name="leite_condensado">Leite condensado</string>
@@ -17,7 +20,6 @@
         <item quantity="one">%d brigadeiro</item>
         <item quantity="other">%d brigadeiros</item>
     </plurals>
-
 
     <string name="new_brigadeiro_order">New Brigadeiro Order</string>
     <string name="order_details">Quantity: %1$s \nFilling: %2$s \nPickup date: %3$s \nTotal: %4$s \n\nThank you!</string>

@@ -32,7 +32,7 @@ class OrderViewModel : ViewModel() {
     val uiState: StateFlow<OrderUiState> = _uiState.asStateFlow()
 
     /**
-     * Set the quantity [numberBrigadeiros] of cupcakes for this order's state and update the price
+     * Set the quantity [numberBrigadeiros] of brigadeiros for this order's state and update the price
      */
     fun setQuantity(numberBrigadeiros: Int) {
         _uiState.update { currentState ->

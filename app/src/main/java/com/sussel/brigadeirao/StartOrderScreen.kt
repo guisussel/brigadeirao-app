@@ -25,7 +25,7 @@ import com.sussel.brigadeirao.data.DataSource
 import com.sussel.brigadeirao.ui.theme.BrigadeiraoTheme
 
 /**
- * Composable that allows the user to select the desired cupcake quantity and expects
+ * Composable that allows the user to select the desired brigadeiro quantity and expects
  * [onNextButtonClicked] lambda that expects the selected quantity and triggers the navigation to
  * next screen
  */
