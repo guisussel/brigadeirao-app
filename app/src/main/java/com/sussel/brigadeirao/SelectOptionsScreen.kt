@@ -1,5 +1,6 @@
 package com.sussel.brigadeirao
 
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -13,6 +14,7 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -39,8 +41,8 @@ fun SelectOptionsScreen(
     options: List<String>,
     onSelectionChanged: (String) -> Unit = { },
     onCancelButtonClicked: () -> Unit = { },
-    onNextButtonClicked: () -> Unit = { }
-) {
+    onNextButtonClicked: () -> Unit = { })
+{
     var selectedValue by rememberSaveable {
         mutableStateOf("")
     }

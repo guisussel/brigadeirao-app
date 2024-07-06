@@ -9,5 +9,7 @@ data class OrderUiState(
     val filling: String = "",
     val date: String = "",
     val price: String = "",
-    val pickupOptions: List<String> = listOf()
+    val pickupOptions: List<String> = listOf(),
+    val isLoading: Boolean = false,
+    val errorMessage: String? = null
 )

@@ -1,35 +1,73 @@
 package com.sussel.brigadeirao
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.sussel.brigadeirao.data.OrderUiState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+import retrofit2.HttpException
+import java.io.IOException
 import java.text.NumberFormat
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
-
-
-// TODO: fetch this data from database
-/** Price for a single brigadeiro */
-private const val PRICE_PER_BRIGADEIRO = 2.00
-
-/** Additional cost for same day pickup of an order */
-private const val PRICE_FOR_SAME_DAY_PICKUP = 3.00
 
 /**
  * [OrderViewModel] holds information about a brigadeiro order in terms of quantity, filling, and
  * pickup date. It also knows how to calculate the total price based on these order details.
  */
 class OrderViewModel : ViewModel() {
+    val log = Logger("--BAPP_OrderViewModel")
+
+    // TODO: fetch this data from database
+    /** Price for a single brigadeiro */
+    private var PRICE_PER_BRIGADEIRO: Double = 0.0
+    /** Additional cost for same day pickup of an order */
+    private var PRICE_FOR_SAME_DAY_PICKUP: Double = 0.0
 
     /**
      * Brigadeiro state for this order
      */
     private val _uiState = MutableStateFlow(OrderUiState(pickupOptions = pickupOptions()))
     val uiState: StateFlow<OrderUiState> = _uiState.asStateFlow()
+
+    init {
+        fetchBrigadeiroPricing()
+    }
+
+    fun fetchBrigadeiroPricing(){
+        viewModelScope.launch {
+            _uiState.update { it.copy(isLoading = true) }
+            try {
+                log.i("trying")
+                val response = RetrofitInitializer().brigadeiroPricingService().findPricingBy()
+                log.i("success: ${response.isSuccessful}")
+                if (response.isSuccessful) {
+                    response.body()?.let { config ->
+                        PRICE_PER_BRIGADEIRO = config.brigadeiroUnitPrice
+                        PRICE_FOR_SAME_DAY_PICKUP = config.sameDayPickupPrice
+                    }
+                    log.i("$response.body()")
+                    _uiState.update { it.copy(isLoading = false) }
+                } else {
+                    _uiState.update { it.copy(isLoading = false,
+                        errorMessage = "Error fetching data: ${response.message()}")
+                    }
+                    log.e(response.message())
+                }
+
+            } catch (e: IOException) {
+                e.message?.let { log.e(it) }
+                _uiState.update { it.copy(isLoading = false, errorMessage = "Network error: ${e.message}") }
+            } catch (e: HttpException) {
+                e.message?.let { log.e(it) }
+                _uiState.update { it.copy(isLoading = false, errorMessage = "HTTP error: ${e.message()}") }
+            }
+        }
+    }
 
     /**
      * Set the quantity [numberBrigadeiros] of brigadeiros for this order's state and update the price
@@ -92,7 +130,7 @@ class OrderViewModel : ViewModel() {
      */
     private fun pickupOptions(): List<String> {
         val dateOptions = mutableListOf<String>()
-        val formatter = SimpleDateFormat("E MM d", Locale.getDefault())
+        val formatter = SimpleDateFormat("E dd/MM", Locale.getDefault())
         val calendar = Calendar.getInstance()
         // add current date and the following 3 dates.
         repeat(4) {

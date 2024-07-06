@@ -31,4 +31,6 @@
     <string name="send_order">Send order</string>
     <string name="next">Next</string>
     <string name="cancel">Cancel</string>
+    <string name="loading">Loading…</string>
+    <string name="unknown_error">Unknown error!</string>
 </resources>
