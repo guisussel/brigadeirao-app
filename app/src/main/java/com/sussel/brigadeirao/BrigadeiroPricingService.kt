@@ -5,7 +5,7 @@ import retrofit2.http.GET
 
 interface BrigadeiroPricingService {
 
-    @GET("/pricing")
+    @GET("/api/pricing")
     suspend fun findPricingBy(): Response<BrigadeiroPricing>
 
 }

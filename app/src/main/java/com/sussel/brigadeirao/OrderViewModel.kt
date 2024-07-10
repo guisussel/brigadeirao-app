@@ -20,7 +20,7 @@ import java.util.Locale
  * pickup date. It also knows how to calculate the total price based on these order details.
  */
 class OrderViewModel : ViewModel() {
-    val log = Logger("--BAPP_OrderViewModel")
+    private val log = Logger("--BAPP_OrderViewModel")
 
     // TODO: fetch this data from database
     /** Price for a single brigadeiro */
@@ -38,16 +38,16 @@ class OrderViewModel : ViewModel() {
         fetchBrigadeiroPricing()
     }
 
-    fun fetchBrigadeiroPricing(){
+    private fun fetchBrigadeiroPricing(){
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
             try {
-                log.i("trying")
+                log.i("fetching brigadeiro pricing...")
                 val response = RetrofitInitializer().brigadeiroPricingService().findPricingBy()
-                log.i("success: ${response.isSuccessful}")
                 if (response.isSuccessful) {
                     response.body()?.let { config ->
-                        PRICE_PER_BRIGADEIRO = config.brigadeiroUnitPrice
+                        log.i("setting pricing: ${config.pricePerUnit}/ ${config.sameDayPickupPrice}")
+                        PRICE_PER_BRIGADEIRO = config.pricePerUnit
                         PRICE_FOR_SAME_DAY_PICKUP = config.sameDayPickupPrice
                     }
                     log.i("$response.body()")
@@ -56,17 +56,25 @@ class OrderViewModel : ViewModel() {
                     _uiState.update { it.copy(isLoading = false,
                         errorMessage = "Error fetching data: ${response.message()}")
                     }
+                    setDefaultBrigadeiroPricing()
                     log.e(response.message())
                 }
-
             } catch (e: IOException) {
                 e.message?.let { log.e(it) }
                 _uiState.update { it.copy(isLoading = false, errorMessage = "Network error: ${e.message}") }
+                setDefaultBrigadeiroPricing()
             } catch (e: HttpException) {
                 e.message?.let { log.e(it) }
                 _uiState.update { it.copy(isLoading = false, errorMessage = "HTTP error: ${e.message()}") }
+                setDefaultBrigadeiroPricing()
             }
         }
+    }
+
+    private fun setDefaultBrigadeiroPricing() {
+        PRICE_PER_BRIGADEIRO = 3.0
+        PRICE_FOR_SAME_DAY_PICKUP = 10.0
+        log.i("default pricing: $PRICE_PER_BRIGADEIRO/ $PRICE_FOR_SAME_DAY_PICKUP")
     }
 
     /**
