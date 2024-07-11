@@ -92,7 +92,7 @@ class OrderViewModel : ViewModel() {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
             try {
-                // TODO refactor
+                // TODO refactor here
                 log.i("creating order...")
                 RetrofitInitializer().orderService().createOrder(
                     Order(
