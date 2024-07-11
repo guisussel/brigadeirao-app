@@ -1,4 +1,4 @@
-package com.sussel.brigadeirao
+package com.sussel.brigadeirao.utils
 
 import timber.log.Timber
 

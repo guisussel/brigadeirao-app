@@ -1,4 +1,4 @@
-package com.sussel.brigadeirao
+package com.sussel.brigadeirao.model
 
 data class BrigadeiroPricing(
     val pricePerUnit: Double,

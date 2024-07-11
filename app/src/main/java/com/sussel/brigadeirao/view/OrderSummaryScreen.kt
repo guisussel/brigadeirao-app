@@ -1,4 +1,4 @@
-package com.sussel.brigadeirao
+package com.sussel.brigadeirao.view
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -20,6 +20,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.sussel.brigadeirao.R
 import com.sussel.brigadeirao.data.OrderUiState
 import com.sussel.brigadeirao.ui.components.FormattedPriceLabel
 import com.sussel.brigadeirao.ui.theme.BrigadeiraoTheme
@@ -38,7 +39,7 @@ fun OrderSummaryScreen(
 ) {
     val resources = LocalContext.current.resources
 
-    val numberOfBrigadeiros = resources.getQuantityString(
+    val quantity = resources.getQuantityString(
         R.plurals.brigadeiros,
         orderUiState.quantity,
         orderUiState.quantity
@@ -46,18 +47,18 @@ fun OrderSummaryScreen(
 
     val orderSummary = stringResource(
         id = R.string.order_details,
-        numberOfBrigadeiros,
+        quantity,
         orderUiState.filling,
-        orderUiState.date,
+        orderUiState.pickUpDate,
         orderUiState.quantity
     )
 
     val newOrder = stringResource(id = R.string.new_brigadeiro_order)
 
     val items = listOf(
-        Pair(stringResource(id = R.string.quantity), numberOfBrigadeiros),
+        Pair(stringResource(id = R.string.quantity), quantity),
         Pair(stringResource(id = R.string.filling), orderUiState.filling),
-        Pair(stringResource(id = R.string.pickup_date), orderUiState.date)
+        Pair(stringResource(id = R.string.pickup_date), orderUiState.pickUpDate)
     )
 
     Column(
@@ -76,7 +77,7 @@ fun OrderSummaryScreen(
             }
             Spacer(modifier = Modifier.height(8.dp))
             FormattedPriceLabel(
-                subTotal = orderUiState.price,
+                subTotal = orderUiState.total,
                 modifier = Modifier.align(Alignment.End)
             )
         }
@@ -113,7 +114,7 @@ fun PreviewOrderSummaryScreen() {
     BrigadeiraoTheme {
         OrderSummaryScreen(
             modifier = Modifier.fillMaxHeight(),
-            orderUiState = OrderUiState(1, "test filling", "test date", "test price 3.0"),
+            orderUiState = OrderUiState(1, "test filling", "test date", "99.9"),
             onSendButtonClicked = { subject: String, summary: String -> },
             onCancelButtonClicked = { }
         )

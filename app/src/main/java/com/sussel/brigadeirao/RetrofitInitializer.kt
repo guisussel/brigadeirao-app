@@ -1,5 +1,6 @@
 package com.sussel.brigadeirao
 
+import com.sussel.brigadeirao.model.Order
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
@@ -13,5 +14,7 @@ class RetrofitInitializer {
         .build()
 
     fun brigadeiroPricingService(): BrigadeiroPricingService = retrofit.create(BrigadeiroPricingService::class.java)
+
+    fun orderService(): OrderService = retrofit.create(OrderService::class.java)
 
 }

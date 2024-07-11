@@ -1,14 +1,21 @@
-package com.sussel.brigadeirao
+package com.sussel.brigadeirao.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.sussel.brigadeirao.OrderService
+import com.sussel.brigadeirao.RetrofitInitializer
 import com.sussel.brigadeirao.data.OrderUiState
+import com.sussel.brigadeirao.model.Order
+import com.sussel.brigadeirao.utils.Logger
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import retrofit2.Call
+import retrofit2.Callback
 import retrofit2.HttpException
+import retrofit2.Response
 import java.io.IOException
 import java.text.NumberFormat
 import java.text.SimpleDateFormat
@@ -22,10 +29,7 @@ import java.util.Locale
 class OrderViewModel : ViewModel() {
     private val log = Logger("--BAPP_OrderViewModel")
 
-    // TODO: fetch this data from database
-    /** Price for a single brigadeiro */
     private var PRICE_PER_BRIGADEIRO: Double = 0.0
-    /** Additional cost for same day pickup of an order */
     private var PRICE_FOR_SAME_DAY_PICKUP: Double = 0.0
 
     /**
@@ -38,7 +42,7 @@ class OrderViewModel : ViewModel() {
         fetchBrigadeiroPricing()
     }
 
-    private fun fetchBrigadeiroPricing(){
+    private fun fetchBrigadeiroPricing() {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
             try {
@@ -53,27 +57,85 @@ class OrderViewModel : ViewModel() {
                     log.i("$response.body()")
                     _uiState.update { it.copy(isLoading = false) }
                 } else {
-                    _uiState.update { it.copy(isLoading = false,
-                        errorMessage = "Error fetching data: ${response.message()}")
+                    _uiState.update {
+                        it.copy(
+                            isLoading = false,
+                            errorMessage = "Error fetching data: ${response.message()}"
+                        )
                     }
                     setDefaultBrigadeiroPricing()
                     log.e(response.message())
                 }
             } catch (e: IOException) {
                 e.message?.let { log.e(it) }
-                _uiState.update { it.copy(isLoading = false, errorMessage = "Network error: ${e.message}") }
+                _uiState.update {
+                    it.copy(
+                        isLoading = false,
+                        errorMessage = "Network error: ${e.message}"
+                    )
+                }
                 setDefaultBrigadeiroPricing()
             } catch (e: HttpException) {
                 e.message?.let { log.e(it) }
-                _uiState.update { it.copy(isLoading = false, errorMessage = "HTTP error: ${e.message()}") }
+                _uiState.update {
+                    it.copy(
+                        isLoading = false,
+                        errorMessage = "HTTP error: ${e.message()}"
+                    )
+                }
                 setDefaultBrigadeiroPricing()
+            }
+        }
+    }
+
+    fun createOrder() {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isLoading = true) }
+            try {
+                // TODO refactor
+                log.i("creating order...")
+                RetrofitInitializer().orderService().createOrder(
+                    Order(
+                        pickUpDate = _uiState.value.pickUpDate,
+                        total = _uiState.value.total.trim().replace("$", "").toDouble(),
+                        quantity = _uiState.value.quantity,
+                        filling = _uiState.value.filling
+                    )
+                ).enqueue(object : Callback<Order> {
+                    override fun onResponse(call: Call<Order>, response: Response<Order>) {
+                        if (response.isSuccessful) {
+                            log.i("order created successfully")
+                        } else {
+                            log.i("failure creating order")
+                        }
+                    }
+
+                    override fun onFailure(call: Call<Order>, t: Throwable) {
+                    }
+                })
+            } catch (e: IOException) {
+                e.message?.let { log.e(it) }
+                _uiState.update {
+                    it.copy(
+                        isLoading = false,
+                        errorMessage = "Network error: ${e.message}"
+                    )
+                }
+            } catch (e: HttpException) {
+                e.message?.let { log.e(it) }
+                _uiState.update {
+                    it.copy(
+                        isLoading = false,
+                        errorMessage = "HTTP error: ${e.message()}"
+                    )
+                }
             }
         }
     }
 
     private fun setDefaultBrigadeiroPricing() {
         PRICE_PER_BRIGADEIRO = 3.0
-        PRICE_FOR_SAME_DAY_PICKUP = 10.0
+        PRICE_FOR_SAME_DAY_PICKUP = 5.0
         log.i("default pricing: $PRICE_PER_BRIGADEIRO/ $PRICE_FOR_SAME_DAY_PICKUP")
     }
 
@@ -84,7 +146,7 @@ class OrderViewModel : ViewModel() {
         _uiState.update { currentState ->
             currentState.copy(
                 quantity = numberBrigadeiros,
-                price = calculatePrice(quantity = numberBrigadeiros)
+                total = calculatePrice(quantity = numberBrigadeiros)
             )
         }
     }
@@ -105,8 +167,8 @@ class OrderViewModel : ViewModel() {
     fun setPickupDate(pickupDate: String) {
         _uiState.update { currentState ->
             currentState.copy(
-                date = pickupDate,
-                price = calculatePrice(pickupDate = pickupDate)
+                pickUpDate = pickupDate,
+                total = calculatePrice(pickupDate = pickupDate)
             )
         }
     }
@@ -123,11 +185,11 @@ class OrderViewModel : ViewModel() {
      */
     private fun calculatePrice(
         quantity: Int = _uiState.value.quantity,
-        pickupDate: String = _uiState.value.date
+        pickupDate: String = _uiState.value.pickUpDate
     ): String {
         var calculatedPrice = quantity * PRICE_PER_BRIGADEIRO
         // If the user selected the first option (today) for pickup, add the surcharge
-        if(pickupOptions()[0] == pickupDate) {
+        if (pickupOptions()[0] == pickupDate) {
             calculatedPrice += PRICE_FOR_SAME_DAY_PICKUP
         }
         return NumberFormat.getCurrencyInstance().format(calculatedPrice)

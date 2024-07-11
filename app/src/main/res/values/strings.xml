@@ -4,6 +4,7 @@
     <string name="choose_pickup_date">Choose Pickup Date</string>
     <string name="order_summary">Order Summary</string>
     <string name="order_brigadeiros">Order brigadeiros</string>
+    <string name="available_options">Available options:</string>
     <string name="back">Back</string>
 
     <!-- fillings -->
@@ -13,7 +14,7 @@
     <string name="doce_de_leite">Doce de leite</string>
 
     <!-- quantity -->
-    <string name="one_brigadeiro">1 brigadeiro</string>
+    <string name="two_brigadeiro">2 brigadeiros</string>
     <string name="four_brigadeiros">4 brigadeiros</string>
     <string name="ten_brigadeiros">10 brigadeiros</string>
     <plurals name="brigadeiros">

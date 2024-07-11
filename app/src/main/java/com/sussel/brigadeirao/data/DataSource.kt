@@ -13,7 +13,7 @@ object DataSource {
     )
 
     val quantityOptions = listOf(
-        Pair(R.string.one_brigadeiro, 1),
+        Pair(R.string.two_brigadeiro, 2),
         Pair(R.string.four_brigadeiros, 4),
         Pair(R.string.ten_brigadeiros, 10)
     )

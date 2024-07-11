@@ -29,6 +29,12 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.sussel.brigadeirao.data.DataSource
+import com.sussel.brigadeirao.utils.Logger
+import com.sussel.brigadeirao.view.DefaultMessageScreen
+import com.sussel.brigadeirao.view.OrderSummaryScreen
+import com.sussel.brigadeirao.view.SelectOptionsScreen
+import com.sussel.brigadeirao.view.StartOrderScreen
+import com.sussel.brigadeirao.viewmodel.OrderViewModel
 
 enum class BrigadeiraoScreen(@StringRes val title: Int) {
     Start(title = R.string.app_name),
@@ -86,13 +92,12 @@ fun BrigadeiraoApp(
 
     if (uiState.isLoading) {
         // TODO: make this a splashScreen
-        DefaultMessageScreen(stringResource(id = R.string.loading))
+        DefaultMessageScreen(stringResource(id = R.string.loading), false)
     }
-//    else if (uiState.errorMessage != null) {
-//        log.e("${uiState.errorMessage}")
-//        // TODO: api dont exist yet, load screen anyway
-//        DefaultMessageScreen(stringResource(id = R.string.unknown_error))
-//    }
+    else if (uiState.errorMessage != null) {
+        log.e("${uiState.errorMessage}")
+        DefaultMessageScreen(uiState.errorMessage!!, true)
+    }
     else {
         Scaffold(
             topBar = {
@@ -103,8 +108,6 @@ fun BrigadeiraoApp(
                 )
             }
         ) { innerPadding ->
-//            val uiState by viewModel.uiState.collectAsState()
-
             NavHost(
                 navController = navController,
                 startDestination = BrigadeiraoScreen.Start.name,
@@ -125,7 +128,7 @@ fun BrigadeiraoApp(
                 composable(route = BrigadeiraoScreen.Filling.name) {
                     val context = LocalContext.current
                     SelectOptionsScreen(
-                        subtotal = uiState.price,
+                        subtotal = uiState.total,
                         onNextButtonClicked = { navController.navigate(BrigadeiraoScreen.Pickup.name) },
                         onCancelButtonClicked = {
                             cancelOrderAndNavigateBackToStart(viewModel, navController)
@@ -137,7 +140,7 @@ fun BrigadeiraoApp(
                 }
                 composable(route = BrigadeiraoScreen.Pickup.name) {
                     SelectOptionsScreen(
-                        subtotal = uiState.price,
+                        subtotal = uiState.total,
                         onNextButtonClicked = { navController.navigate(BrigadeiraoScreen.Summary.name) },
                         onCancelButtonClicked = {
                             cancelOrderAndNavigateBackToStart(viewModel, navController)
@@ -152,14 +155,15 @@ fun BrigadeiraoApp(
                     OrderSummaryScreen(
                         orderUiState = uiState,
                         onSendButtonClicked = { subject: String, summary: String ->
-                            shareOrder(context, subject, summary)
+//                            shareOrder(context, subject, summary)
+                            viewModel.createOrder()
+                            cancelOrderAndNavigateBackToStart(viewModel, navController)
                         },
                         onCancelButtonClicked = {
                             cancelOrderAndNavigateBackToStart(viewModel, navController)
                         },
                         modifier = Modifier.fillMaxHeight()
                     )
-
                 }
             }
         }
