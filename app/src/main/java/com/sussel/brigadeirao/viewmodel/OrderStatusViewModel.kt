@@ -2,6 +2,8 @@ package com.sussel.brigadeirao.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.sussel.brigadeirao.RetrofitInitializer
+import com.sussel.brigadeirao.utils.Logger
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -13,6 +15,9 @@ enum class OrderStatus {
 }
 
 class OrderStatusViewModel : ViewModel() {
+
+    private val log = Logger("--BAPP_OrderStatusViewModel")
+
     private val _orderStatus = MutableStateFlow(OrderStatus.RECEIVED)
     val orderStatus: StateFlow<OrderStatus> = _orderStatus
 
@@ -23,18 +28,21 @@ class OrderStatusViewModel : ViewModel() {
     private fun trackOrderStatus() {
         viewModelScope.launch(Dispatchers.IO) {
             while (_orderStatus.value != OrderStatus.DELIVERED) {
-                // Simula a requisição para a API e atualiza o status
                 val newStatus = fetchOrderStatusFromApi()
                 _orderStatus.value = newStatus
-
-                delay(10000) // Espera 10 segundos antes de fazer a próxima requisição
+                log.i("trackOrderStatus: ${_orderStatus.value}")
+                delay(5000) // Espera 10 segundos antes de fazer a próxima requisição
             }
         }
     }
 
     private suspend fun fetchOrderStatusFromApi(): OrderStatus {
-        // Aqui você faria a requisição para a API para obter o status atual do pedido
-        // Exemplo fictício de resposta da API
-        return OrderStatus.entries.toTypedArray().random() // Simula a resposta da API
+        return try {
+            log.i("fetchOrderStatusFromApi")
+            RetrofitInitializer().orderService().getOrderStatus()
+        } catch (e: Exception) {
+            e.printStackTrace()
+            OrderStatus.RECEIVED // Retorna um valor padrão em caso de erro
+        }
     }
 }
