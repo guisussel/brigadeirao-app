@@ -3,6 +3,7 @@
     <string name="choose_filling">Choose Filling</string>
     <string name="choose_pickup_date">Choose Pickup Date</string>
     <string name="order_summary">Order Summary</string>
+    <string name="track_order">Track Order</string>
     <string name="order_brigadeiros">Order brigadeiros</string>
     <string name="available_options">Available options:</string>
     <string name="back">Back</string>

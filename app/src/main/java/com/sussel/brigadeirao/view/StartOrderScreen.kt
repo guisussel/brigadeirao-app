@@ -42,7 +42,8 @@ import com.sussel.brigadeirao.ui.theme.cor5
 fun StartOrderScreen(
     modifier: Modifier = Modifier,
     quantityOptions: List<Pair<Int, Int>>,
-    onNextButtonClicked: (Int) -> Unit
+    onNextButtonClicked: (Int) -> Unit,
+    onTrackOrderButtonClicked: () -> Unit
 ) {
     Column(
         modifier = modifier,
@@ -66,6 +67,19 @@ fun StartOrderScreen(
             )
             Spacer(modifier = Modifier.height(8.dp))
         }
+
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Button(
+                onClick = { onTrackOrderButtonClicked() }
+            ) {
+                Text(stringResource(R.string.track_order))
+            }
+        }
+
         Column(
             modifier = Modifier.fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -108,7 +122,8 @@ fun PreviewStartOrder() {
                 .fillMaxSize()
                 .padding(16.dp),
             quantityOptions = DataSource.quantityOptions,
-            onNextButtonClicked = {}
+            onNextButtonClicked = {},
+            onTrackOrderButtonClicked = {}
         )
     }
 }

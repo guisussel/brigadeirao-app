@@ -34,13 +34,15 @@ import com.sussel.brigadeirao.view.DefaultMessageScreen
 import com.sussel.brigadeirao.view.OrderSummaryScreen
 import com.sussel.brigadeirao.view.SelectOptionsScreen
 import com.sussel.brigadeirao.view.StartOrderScreen
+import com.sussel.brigadeirao.view.TrackOrderStatusScreen
 import com.sussel.brigadeirao.viewmodel.OrderViewModel
 
 enum class BrigadeiraoScreen(@StringRes val title: Int) {
     Start(title = R.string.app_name),
     Filling(title = R.string.choose_filling),
     Pickup(title = R.string.pickup_date),
-    Summary(title = R.string.order_summary)
+    Summary(title = R.string.order_summary),
+    TrackOrder(title = R.string.track_order)
 }
 
 /**
@@ -120,6 +122,9 @@ fun BrigadeiraoApp(
                             viewModel.setQuantity(it)
                             navController.navigate(BrigadeiraoScreen.Filling.name)
                         },
+                        onTrackOrderButtonClicked = {
+                            navController.navigate(BrigadeiraoScreen.TrackOrder.name)
+                        },
                         modifier = Modifier
                             .fillMaxSize()
                             .padding(16.dp)
@@ -161,6 +166,14 @@ fun BrigadeiraoApp(
                         },
                         onCancelButtonClicked = {
                             cancelOrderAndNavigateBackToStart(viewModel, navController)
+                        },
+                        modifier = Modifier.fillMaxHeight()
+                    )
+                }
+                composable(route = BrigadeiraoScreen.TrackOrder.name) {
+                    TrackOrderStatusScreen(
+                        onCancelButtonClicked = {
+                            navController.popBackStack(BrigadeiraoScreen.Start.name, inclusive = false)
                         },
                         modifier = Modifier.fillMaxHeight()
                     )
