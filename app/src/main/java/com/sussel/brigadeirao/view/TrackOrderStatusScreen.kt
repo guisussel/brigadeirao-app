@@ -59,6 +59,22 @@ fun TrackOrderStatusScreen(
 
             Spacer(modifier = Modifier.height(32.dp))
         }
+        Column(
+            modifier = Modifier
+                .fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            if (orderStatus.value != OrderStatus.DELIVERED) {
+                CircularProgressIndicator(
+                    modifier = Modifier
+                        .requiredSize(100.dp)
+                        .width(64.dp),
+                    color = MaterialTheme.colorScheme.secondary,
+                    trackColor = MaterialTheme.colorScheme.surfaceVariant
+                )
+            }
+        }
 
         Row(
             modifier = Modifier.padding(16.dp)
