@@ -2,7 +2,6 @@ package com.sussel.brigadeirao.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.sussel.brigadeirao.OrderService
 import com.sussel.brigadeirao.RetrofitInitializer
 import com.sussel.brigadeirao.data.OrderUiState
 import com.sussel.brigadeirao.model.Order
@@ -133,6 +132,10 @@ class OrderViewModel : ViewModel() {
         }
     }
 
+    /**
+     * Set a default value for [PRICE_PER_BRIGADEIRO] and [PRICE_FOR_SAME_DAY_PICKUP] when there's an
+     * error while fetching those values from the api
+     */
     private fun setDefaultBrigadeiroPricing() {
         PRICE_PER_BRIGADEIRO = 3.0
         PRICE_FOR_SAME_DAY_PICKUP = 5.0
@@ -200,9 +203,8 @@ class OrderViewModel : ViewModel() {
      */
     private fun pickupOptions(): List<String> {
         val dateOptions = mutableListOf<String>()
-        val formatter = SimpleDateFormat("E dd/MM", Locale.getDefault())
+        val formatter = SimpleDateFormat("EEEE, dd/MM/yy", Locale.getDefault())
         val calendar = Calendar.getInstance()
-        // add current date and the following 3 dates.
         repeat(4) {
             dateOptions.add(formatter.format(calendar.time))
             calendar.add(Calendar.DATE, 1)
