@@ -1,7 +1,17 @@
 package com.sussel.brigadeirao.view
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -16,31 +26,54 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.sussel.brigadeirao.R
+import com.sussel.brigadeirao.ui.theme.BrigadeiraoTheme
 import com.sussel.brigadeirao.viewmodel.OrderStatus
 import com.sussel.brigadeirao.viewmodel.OrderStatusViewModel
 
 @Composable
 fun TrackOrderStatusScreen(
-    onCancelButtonClicked: () -> Unit,
+    onBackButtonClicked: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val orderStatusViewModel: OrderStatusViewModel = viewModel()
     val orderStatus = orderStatusViewModel.orderStatus.collectAsState()
 
     Column(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
+        modifier = modifier,
+        verticalArrangement = Arrangement.SpaceBetween
     ) {
-        Text("Order Status", style = MaterialTheme.typography.headlineMedium)
+        Column(
+            modifier = Modifier
+                .padding(16.dp)
+                .fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text("Order Status", style = MaterialTheme.typography.headlineMedium)
 
-        Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
-        OrderStatusTimeline(currentStatus = orderStatus.value)
+            OrderStatusTimeline(currentStatus = orderStatus.value)
 
-        Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(32.dp))
+        }
 
+        Row(
+            modifier = Modifier.padding(16.dp)
+        ) {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                OutlinedButton(
+                    modifier = Modifier.fillMaxWidth(),
+                    onClick = onBackButtonClicked
+                ) {
+                    Text(
+                        text = stringResource(id = R.string.back)
+                    )
+                }
+            }
+        }
     }
 }
 
@@ -71,5 +104,16 @@ fun OrderStatusTimeline(currentStatus: OrderStatus) {
                 Text(label, color = if (status <= currentStatus) Color.Black else Color.Gray)
             }
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewTrackOrderStatusSreen() {
+    BrigadeiraoTheme {
+        TrackOrderStatusScreen(
+            modifier = Modifier.fillMaxHeight(),
+            onBackButtonClicked = { }
+        )
     }
 }

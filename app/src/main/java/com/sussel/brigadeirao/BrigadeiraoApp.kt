@@ -95,12 +95,10 @@ fun BrigadeiraoApp(
     if (uiState.isLoading) {
         // TODO: make this a splashScreen
         DefaultMessageScreen(stringResource(id = R.string.loading), false)
-    }
-    else if (uiState.errorMessage != null) {
+    } else if (uiState.errorMessage != null) {
         log.e("${uiState.errorMessage}")
         DefaultMessageScreen(uiState.errorMessage!!, true)
-    }
-    else {
+    } else {
         Scaffold(
             topBar = {
                 BrigadeiraoAppBar(
@@ -172,8 +170,11 @@ fun BrigadeiraoApp(
                 }
                 composable(route = BrigadeiraoScreen.TrackOrder.name) {
                     TrackOrderStatusScreen(
-                        onCancelButtonClicked = {
-                            navController.popBackStack(BrigadeiraoScreen.Start.name, inclusive = false)
+                        onBackButtonClicked = {
+                            navController.popBackStack(
+                                BrigadeiraoScreen.Start.name,
+                                inclusive = false
+                            )
                         },
                         modifier = Modifier.fillMaxHeight()
                     )
