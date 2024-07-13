@@ -1,4 +1,4 @@
-package com.sussel.brigadeirao.view
+package com.sussel.brigadeirao.ui.view
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -20,6 +20,7 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -28,20 +29,19 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.sussel.brigadeirao.R
+import com.sussel.brigadeirao.data.OrderStatus
 import com.sussel.brigadeirao.ui.theme.BrigadeiraoTheme
-import com.sussel.brigadeirao.viewmodel.OrderStatus
-import com.sussel.brigadeirao.viewmodel.OrderStatusViewModel
+import com.sussel.brigadeirao.ui.viewmodel.UnifiedOrderViewModel
 
 @Composable
 fun TrackOrderStatusScreen(
     onBackButtonClicked: () -> Unit,
-    modifier: Modifier = Modifier
+    viewModel: UnifiedOrderViewModel = viewModel()
 ) {
-    val orderStatusViewModel: OrderStatusViewModel = viewModel()
-    val orderStatus = orderStatusViewModel.orderStatus.collectAsState()
+    val orderStatus by viewModel.orderStatus.collectAsState()
 
     Column(
-        modifier = modifier,
+        modifier = Modifier.fillMaxHeight(),
         verticalArrangement = Arrangement.SpaceBetween
     ) {
         Column(
@@ -55,7 +55,7 @@ fun TrackOrderStatusScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            OrderStatusTimeline(currentStatus = orderStatus.value)
+            OrderStatusTimeline(currentStatus = orderStatus)
 
             Spacer(modifier = Modifier.height(32.dp))
         }
@@ -65,7 +65,7 @@ fun TrackOrderStatusScreen(
             verticalArrangement = Arrangement.spacedBy(8.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            if (orderStatus.value != OrderStatus.DELIVERED) {
+            if (orderStatus != OrderStatus.DELIVERED) {
                 CircularProgressIndicator(
                     modifier = Modifier
                         .requiredSize(100.dp)
@@ -127,10 +127,9 @@ fun OrderStatusTimeline(currentStatus: OrderStatus) {
 
 @Preview(showBackground = true)
 @Composable
-fun PreviewTrackOrderStatusSreen() {
+fun PreviewTrackOrderStatusScreen() {
     BrigadeiraoTheme {
         TrackOrderStatusScreen(
-            modifier = Modifier.fillMaxHeight(),
             onBackButtonClicked = { }
         )
     }

@@ -1,6 +1,6 @@
 package com.sussel.brigadeirao.model
 
 data class BrigadeiroPricing(
-    val pricePerUnit: Double,
-    val sameDayPickupPrice: Double
+    val pricePerBrigadeiroUnit: Double,
+    val priceForSameDayPickup: Double
 )

@@ -9,7 +9,7 @@ import timber.log.Timber
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        Timber.plant(Timber.DebugTree()) //init timber logger
+        Timber.plant(Timber.DebugTree())
         setContent {
             BrigadeiraoTheme {
                 BrigadeiraoApp()

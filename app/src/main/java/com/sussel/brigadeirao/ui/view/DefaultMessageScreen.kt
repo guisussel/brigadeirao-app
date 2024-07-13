@@ -1,4 +1,4 @@
-package com.sussel.brigadeirao.view
+package com.sussel.brigadeirao.ui.view
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
@@ -58,6 +58,9 @@ fun DefaultMessageScreen(message: String, showError: Boolean) {
 
 @Preview(showBackground = true)
 @Composable
-fun PreviewDefaultMessageScreen(message: String = "Preview test working! long message here teste 1234567890") {
+fun PreviewDefaultMessageScreen(
+    message: String = "This is a long message just for testings purposes, " +
+            "don't ignore me!"
+) {
     DefaultMessageScreen(message, true)
 }

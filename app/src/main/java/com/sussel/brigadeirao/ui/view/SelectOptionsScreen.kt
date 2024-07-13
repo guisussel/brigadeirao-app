@@ -1,4 +1,4 @@
-package com.sussel.brigadeirao.view
+package com.sussel.brigadeirao.ui.view
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -8,7 +8,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.material3.Button
-import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
@@ -40,8 +40,8 @@ fun SelectOptionsScreen(
     options: List<String>,
     onSelectionChanged: (String) -> Unit = { },
     onCancelButtonClicked: () -> Unit = { },
-    onNextButtonClicked: () -> Unit = { })
-{
+    onNextButtonClicked: () -> Unit = { }
+) {
     var selectedValue by rememberSaveable {
         mutableStateOf("")
     }
@@ -74,8 +74,8 @@ fun SelectOptionsScreen(
                     Text(text = item)
                 }
             }
-            Divider(
-                thickness = 1.dp,
+            HorizontalDivider(
+                thickness = 2.dp,
                 modifier = Modifier.padding(bottom = 16.dp)
             )
             FormattedPriceLabel(

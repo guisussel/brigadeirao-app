@@ -1,11 +1,14 @@
-package com.sussel.brigadeirao.viewmodel
+package com.sussel.brigadeirao.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.sussel.brigadeirao.RetrofitInitializer
-import com.sussel.brigadeirao.data.OrderUiState
+import com.sussel.brigadeirao.data.RetrofitInitializer
+import com.sussel.brigadeirao.data.OrderStatus
+import com.sussel.brigadeirao.data.UnifiedOrderUiState
 import com.sussel.brigadeirao.model.Order
 import com.sussel.brigadeirao.utils.Logger
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -21,21 +24,21 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
 
-/**
- * [OrderViewModel] holds information about a brigadeiro order in terms of quantity, filling, and
- * pickup date. It also knows how to calculate the total price based on these order details.
- */
-class OrderViewModel : ViewModel() {
-    private val log = Logger("--BAPP_OrderViewModel")
+class UnifiedOrderViewModel : ViewModel() {
 
-    private var PRICE_PER_BRIGADEIRO: Double = 0.0
-    private var PRICE_FOR_SAME_DAY_PICKUP: Double = 0.0
+    private val log = Logger("--BAPP_UnifiedOrderViewModel")
 
-    /**
-     * Brigadeiro state for this order
-     */
-    private val _uiState = MutableStateFlow(OrderUiState(pickupOptions = pickupOptions()))
-    val uiState: StateFlow<OrderUiState> = _uiState.asStateFlow()
+    private var pricePerBrigadeiroUnit: Double = 0.0
+
+    private var priceForSameDayPickup: Double = 0.0
+
+    private val _uiState = MutableStateFlow(UnifiedOrderUiState(pickupOptions = pickupOptions()))
+
+    val uiState: StateFlow<UnifiedOrderUiState> = _uiState.asStateFlow()
+
+    private val _orderStatus = MutableStateFlow(OrderStatus.RECEIVED)
+
+    val orderStatus: StateFlow<OrderStatus> = _orderStatus.asStateFlow()
 
     init {
         fetchBrigadeiroPricing()
@@ -46,14 +49,14 @@ class OrderViewModel : ViewModel() {
             _uiState.update { it.copy(isLoading = true) }
             try {
                 log.i("fetching brigadeiro pricing...")
-                val response = RetrofitInitializer().brigadeiroPricingService().findPricingBy()
+                val response = RetrofitInitializer().orderApiService().findPricingBy()
                 if (response.isSuccessful) {
                     response.body()?.let { config ->
-                        log.i("setting pricing: ${config.pricePerUnit}/ ${config.sameDayPickupPrice}")
-                        PRICE_PER_BRIGADEIRO = config.pricePerUnit
-                        PRICE_FOR_SAME_DAY_PICKUP = config.sameDayPickupPrice
+                        log.i("setting pricing: ${config.pricePerBrigadeiroUnit}/ ${config.priceForSameDayPickup}")
+                        pricePerBrigadeiroUnit = config.pricePerBrigadeiroUnit
+                        priceForSameDayPickup = config.priceForSameDayPickup
                     }
-                    log.i("$response.body()")
+                    log.i("${response.body()}")
                     _uiState.update { it.copy(isLoading = false) }
                 } else {
                     _uiState.update {
@@ -87,13 +90,33 @@ class OrderViewModel : ViewModel() {
         }
     }
 
+    fun trackOrderStatus() {
+        viewModelScope.launch(Dispatchers.IO) {
+            while (_orderStatus.value != OrderStatus.DELIVERED) {
+                val newStatus = fetchOrderStatusFromApi()
+                _orderStatus.value = newStatus
+                log.i("trackOrderStatus: ${_orderStatus.value}")
+                delay(5000)
+            }
+        }
+    }
+
+    private suspend fun fetchOrderStatusFromApi(): OrderStatus {
+        return try {
+            log.i("fetchOrderStatusFromApi")
+            RetrofitInitializer().orderApiService().getOrderStatus()
+        } catch (e: Exception) {
+            e.printStackTrace()
+            OrderStatus.RECEIVED
+        }
+    }
+
     fun createOrder() {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
             try {
-                // TODO refactor here
                 log.i("creating order...")
-                RetrofitInitializer().orderService().createOrder(
+                RetrofitInitializer().orderApiService().createOrder(
                     Order(
                         pickUpDate = _uiState.value.pickUpDate,
                         total = _uiState.value.total.trim().replace("$", "").toDouble(),
@@ -104,12 +127,18 @@ class OrderViewModel : ViewModel() {
                     override fun onResponse(call: Call<Order>, response: Response<Order>) {
                         if (response.isSuccessful) {
                             log.i("order created successfully")
+                            _uiState.update {
+                                it.copy(
+
+                                )
+                            }
                         } else {
                             log.i("failure creating order")
                         }
                     }
 
                     override fun onFailure(call: Call<Order>, t: Throwable) {
+                        // TODO
                     }
                 })
             } catch (e: IOException) {
@@ -132,41 +161,27 @@ class OrderViewModel : ViewModel() {
         }
     }
 
-    /**
-     * Set a default value for [PRICE_PER_BRIGADEIRO] and [PRICE_FOR_SAME_DAY_PICKUP] when there's an
-     * error while fetching those values from the api
-     */
     private fun setDefaultBrigadeiroPricing() {
-        PRICE_PER_BRIGADEIRO = 3.0
-        PRICE_FOR_SAME_DAY_PICKUP = 5.0
-        log.i("default pricing: $PRICE_PER_BRIGADEIRO/ $PRICE_FOR_SAME_DAY_PICKUP")
+        pricePerBrigadeiroUnit = 3.0
+        priceForSameDayPickup = 5.0
+        log.i("default pricing: $pricePerBrigadeiroUnit/ $priceForSameDayPickup")
     }
 
-    /**
-     * Set the quantity [numberBrigadeiros] of brigadeiros for this order's state and update the price
-     */
-    fun setQuantity(numberBrigadeiros: Int) {
+    fun setQuantity(numberOfBrigadeiros: Int) {
         _uiState.update { currentState ->
             currentState.copy(
-                quantity = numberBrigadeiros,
-                total = calculatePrice(quantity = numberBrigadeiros)
+                quantity = numberOfBrigadeiros,
+                total = calculatePrice(quantity = numberOfBrigadeiros)
             )
         }
     }
 
-    /**
-     * Set the [desiredFilling] of brigadeiros for this order's state.
-     * Only 1 filling can be selected for the whole order.
-     */
     fun setFilling(desiredFilling: String) {
         _uiState.update { currentState ->
             currentState.copy(filling = desiredFilling)
         }
     }
 
-    /**
-     * Set the [pickupDate] for this order's state and update the price
-     */
     fun setPickupDate(pickupDate: String) {
         _uiState.update { currentState ->
             currentState.copy(
@@ -176,31 +191,22 @@ class OrderViewModel : ViewModel() {
         }
     }
 
-    /**
-     * Reset the order state
-     */
     fun resetOrder() {
-        _uiState.value = OrderUiState(pickupOptions = pickupOptions())
+        _uiState.value = UnifiedOrderUiState(pickupOptions = pickupOptions())
+        _orderStatus.value = OrderStatus.RECEIVED
     }
 
-    /**
-     * Returns the calculated price based on the order details.
-     */
     private fun calculatePrice(
         quantity: Int = _uiState.value.quantity,
         pickupDate: String = _uiState.value.pickUpDate
     ): String {
-        var calculatedPrice = quantity * PRICE_PER_BRIGADEIRO
-        // If the user selected the first option (today) for pickup, add the surcharge
+        var calculatedPrice = quantity * pricePerBrigadeiroUnit
         if (pickupOptions()[0] == pickupDate) {
-            calculatedPrice += PRICE_FOR_SAME_DAY_PICKUP
+            calculatedPrice += priceForSameDayPickup
         }
         return NumberFormat.getCurrencyInstance().format(calculatedPrice)
     }
 
-    /**
-     * Returns a list of date options starting with the current date and the following 3 dates.
-     */
     private fun pickupOptions(): List<String> {
         val dateOptions = mutableListOf<String>()
         val formatter = SimpleDateFormat("EEEE, dd/MM/yy", Locale.getDefault())
@@ -211,5 +217,4 @@ class OrderViewModel : ViewModel() {
         }
         return dateOptions
     }
-
 }

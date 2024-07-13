@@ -1,4 +1,4 @@
-package com.sussel.brigadeirao.view
+package com.sussel.brigadeirao.ui.view
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -21,18 +21,18 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.sussel.brigadeirao.R
-import com.sussel.brigadeirao.data.OrderUiState
+import com.sussel.brigadeirao.data.UnifiedOrderUiState
 import com.sussel.brigadeirao.ui.components.FormattedPriceLabel
 import com.sussel.brigadeirao.ui.theme.BrigadeiraoTheme
 
 /**
- * This composable expects [orderUiState] that represents the order state, [onCancelButtonClicked]
+ * This composable expects [UnifiedOrderUiState] that represents the order state, [onCancelButtonClicked]
  * lambda that triggers canceling the order and passes the final order to [onSendButtonClicked]
  * lambda
  */
 @Composable
 fun OrderSummaryScreen(
-    orderUiState: OrderUiState,
+    unifiedOrderUiState: UnifiedOrderUiState,
     onCancelButtonClicked: () -> Unit,
     onSendButtonClicked: (String, String) -> Unit,
     modifier: Modifier = Modifier
@@ -41,24 +41,24 @@ fun OrderSummaryScreen(
 
     val quantity = resources.getQuantityString(
         R.plurals.brigadeiros,
-        orderUiState.quantity,
-        orderUiState.quantity
+        unifiedOrderUiState.quantity,
+        unifiedOrderUiState.quantity
     )
 
     val orderSummary = stringResource(
         id = R.string.order_details,
         quantity,
-        orderUiState.filling,
-        orderUiState.pickUpDate,
-        orderUiState.quantity
+        unifiedOrderUiState.filling,
+        unifiedOrderUiState.pickUpDate,
+        unifiedOrderUiState.quantity
     )
 
     val newOrder = stringResource(id = R.string.new_brigadeiro_order)
 
     val items = listOf(
         Pair(stringResource(id = R.string.quantity), quantity),
-        Pair(stringResource(id = R.string.filling), orderUiState.filling),
-        Pair(stringResource(id = R.string.pickup_date), orderUiState.pickUpDate)
+        Pair(stringResource(id = R.string.filling), unifiedOrderUiState.filling),
+        Pair(stringResource(id = R.string.pickup_date), unifiedOrderUiState.pickUpDate)
     )
 
     Column(
@@ -76,7 +76,7 @@ fun OrderSummaryScreen(
             }
             Spacer(modifier = Modifier.height(8.dp))
             FormattedPriceLabel(
-                subTotal = orderUiState.total,
+                subTotal = unifiedOrderUiState.total,
                 modifier = Modifier.align(Alignment.End)
             )
         }
@@ -113,7 +113,7 @@ fun PreviewOrderSummaryScreen() {
     BrigadeiraoTheme {
         OrderSummaryScreen(
             modifier = Modifier.fillMaxHeight(),
-            orderUiState = OrderUiState(1, "test filling", "test date", "99.9"),
+            unifiedOrderUiState = UnifiedOrderUiState(1, "test filling", "test date", "99.9"),
             onSendButtonClicked = { subject: String, summary: String -> },
             onCancelButtonClicked = { }
         )

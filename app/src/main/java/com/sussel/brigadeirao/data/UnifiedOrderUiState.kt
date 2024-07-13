@@ -2,9 +2,9 @@ package com.sussel.brigadeirao.data
 
 /**
  * Data class that represents the current UI state in terms of [quantity], [filling],
- * [dateOptions], selected pickup [pickUpDate] and [price]
+ * [pickupOptions], selected pickup [pickUpDate] and [total]
  */
-data class OrderUiState(
+data class UnifiedOrderUiState(
     val quantity: Int = 0,
     val filling: String = "",
     val pickUpDate: String = "",

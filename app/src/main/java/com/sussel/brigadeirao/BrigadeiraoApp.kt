@@ -1,13 +1,11 @@
 package com.sussel.brigadeirao
 
-import android.content.Context
-import android.content.Intent
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -29,13 +27,13 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.sussel.brigadeirao.data.DataSource
+import com.sussel.brigadeirao.ui.view.DefaultMessageScreen
+import com.sussel.brigadeirao.ui.view.OrderSummaryScreen
+import com.sussel.brigadeirao.ui.view.SelectOptionsScreen
+import com.sussel.brigadeirao.ui.view.StartOrderScreen
+import com.sussel.brigadeirao.ui.view.TrackOrderStatusScreen
+import com.sussel.brigadeirao.ui.viewmodel.UnifiedOrderViewModel
 import com.sussel.brigadeirao.utils.Logger
-import com.sussel.brigadeirao.view.DefaultMessageScreen
-import com.sussel.brigadeirao.view.OrderSummaryScreen
-import com.sussel.brigadeirao.view.SelectOptionsScreen
-import com.sussel.brigadeirao.view.StartOrderScreen
-import com.sussel.brigadeirao.view.TrackOrderStatusScreen
-import com.sussel.brigadeirao.viewmodel.OrderViewModel
 
 enum class BrigadeiraoScreen(@StringRes val title: Int) {
     Start(title = R.string.app_name),
@@ -65,7 +63,7 @@ fun BrigadeiraoAppBar(
                     onClick = navigateUp
                 ) {
                     Icon(
-                        imageVector = Icons.Filled.ArrowBack,
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                         contentDescription = stringResource(id = R.string.back)
                     )
                 }
@@ -77,7 +75,7 @@ fun BrigadeiraoAppBar(
 @Preview(showBackground = true)
 @Composable
 fun BrigadeiraoApp(
-    viewModel: OrderViewModel = viewModel(),
+    viewModel: UnifiedOrderViewModel = viewModel(),
     navController: NavHostController = rememberNavController()
 ) {
     val log = Logger("--BAPP_BrigadeiraoApp")
@@ -122,6 +120,7 @@ fun BrigadeiraoApp(
                         },
                         onTrackOrderButtonClicked = {
                             navController.navigate(BrigadeiraoScreen.TrackOrder.name)
+                            viewModel.trackOrderStatus()
                         },
                         modifier = Modifier
                             .fillMaxSize()
@@ -154,9 +153,9 @@ fun BrigadeiraoApp(
                     )
                 }
                 composable(route = BrigadeiraoScreen.Summary.name) {
-                    val context = LocalContext.current
+//                    val context = LocalContext.current
                     OrderSummaryScreen(
-                        orderUiState = uiState,
+                        unifiedOrderUiState = uiState,
                         onSendButtonClicked = { subject: String, summary: String ->
 //                            shareOrder(context, subject, summary)
                             viewModel.createOrder()
@@ -176,7 +175,7 @@ fun BrigadeiraoApp(
                                 inclusive = false
                             )
                         },
-                        modifier = Modifier.fillMaxHeight()
+                        viewModel
                     )
                 }
             }
@@ -185,27 +184,9 @@ fun BrigadeiraoApp(
 }
 
 private fun cancelOrderAndNavigateBackToStart(
-    viewModel: OrderViewModel,
+    viewModel: UnifiedOrderViewModel,
     navController: NavHostController
 ) {
     viewModel.resetOrder()
     navController.popBackStack(BrigadeiraoScreen.Start.name, inclusive = false)
-}
-
-private fun shareOrder(
-    context: Context,
-    subject: String,
-    summary: String
-) {
-    val intent = Intent(Intent.ACTION_SEND).apply {
-        type = "text/plain"
-        putExtra(Intent.EXTRA_SUBJECT, subject)
-        putExtra(Intent.EXTRA_SUBJECT, summary)
-    }
-    context.startActivity(
-        Intent.createChooser(
-            intent,
-            context.getString(R.string.new_brigadeiro_order)
-        )
-    )
 }
